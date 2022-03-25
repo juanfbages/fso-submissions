@@ -26,7 +26,6 @@ const App = () => {
       var city = countriesToShow[0].capital
       var openWeatherQuery = `?q=${city}&APPID=${api_key}&units=metric`
       
-      console.log('fetching weather data')
       axios
       .get(openWeatherbaseURL + openWeatherQuery)
       .then(response => {
@@ -38,7 +37,10 @@ const App = () => {
   const handleFilterChange = (event) => {
     setSearchFilter(event.target.value)
     setCountriesToShow(countries.filter(
-      country => country.name.toLowerCase().includes(searchFilter.toLowerCase())))
+      country => {
+        return country.name.toLowerCase().includes(
+          event.target.value.toLowerCase())
+      }))
   }
 
   return (

@@ -4,6 +4,7 @@ const WeatherDisplay = ({ capital, weather }) => {
   if (Object.keys(weather).length === 0) {
     return (
       <div>
+        <h3>Weather in {capital}</h3>
         <p>No weather information for {capital}</p>
       </div>)
   }
