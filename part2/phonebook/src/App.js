@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import Filter from './components/Filter'
+import Notification from './components/Notification'
 import PersonForm from './components/PersonForm'
 import People from './components/People'
 import peopleService from './services/people'
@@ -10,6 +11,37 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [searchFilter, setSearchFilter] = useState('')
+  const [notificationMsg, setNotificationMsg] = useState(null)
+  const [notificationStyle, setNotificationStyle] = useState({})
+  
+  const errorMsgStyle = {
+    color: 'red',
+    background: 'lightgrey',
+    fontSize: 20,
+    borderStyle: 'solid',
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 10
+  }
+
+  const successMsgStyle = {
+    color: 'green',
+    background: 'lightgrey',
+    fontSize: 20,
+    borderStyle: 'solid',
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 10
+  }
+
+  const flashMsg = (msg, style, timeout) => {
+    setNotificationStyle(style)
+    setNotificationMsg(msg)
+    setTimeout(() => {
+      setNotificationMsg(null)
+      setNotificationStyle({})
+    }, timeout)
+  }
   
   useEffect(() => {
     peopleService
@@ -35,6 +67,11 @@ const App = () => {
             .update(newEntry.id, newEntry)
             .then(returnedEntry => {
               setPersons(persons.map(person => person.id !== newEntry.id ? person : returnedEntry))
+              flashMsg(`Modified ${newEntry.name}`, successMsgStyle, 5000)
+            })
+            .catch(error => {
+              flashMsg(`Information of ${newEntry.name} has already been removed from server`, errorMsgStyle, 5000)
+              setPersons(persons.filter(p => p.id !== newEntry.id))
             })
       }
     } else {
@@ -44,6 +81,7 @@ const App = () => {
             setPersons(persons.concat(returnedNote))
             setNewName('')
             setNewNumber('')
+            flashMsg(`Added ${newEntry.name}`, successMsgStyle, 5000)
           })
     }
   }
@@ -66,6 +104,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={notificationMsg} style={notificationStyle} />
       <Filter searchFilter={searchFilter} handleFilterChange={handleFilterChange}/>
       <h3>Add a new</h3>
       <PersonForm {...{addPerson, newName, newNumber, handleNameChange, handleNumberChange}}/>
